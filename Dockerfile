@@ -16,14 +16,16 @@ ARG UID=10001
 RUN adduser \
     --disabled-password \
     --gecos "" \
-    --home "/nonexistent" \
+    --home "/home/appuser" \
     --shell "/sbin/nologin" \
     --no-create-home \
     --uid "${UID}" \
-    appuser
+    appuser && \
+    mkdir -p /home/appuser && \
+    chown appuser:appuser /home/appuser
 
 # Copy and install dependencies.
-COPY requirements.txt .
+COPY requirements.txt requirements.txt
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code into the container.
@@ -36,4 +38,4 @@ USER appuser
 EXPOSE 8000
 
 # Run the application using Uvicorn.
-CMD ["python3", "-m", "uvicorn", "app:app", "--host=0.0.0.0", "--port=8000"]
+ENTRYPOINT ["python", "-m", "uvicorn", "app:app", "--host=0.0.0.0", "--port=8000"]
